@@ -5,7 +5,6 @@ import numpy as np
 def create_linear_regression_model(input_size, output_size):
     """
     Create a linear regression model with the given input and output sizes.
-    Hint: use nn.Linear
     """
     model = nn.Linear(input_size, output_size)
     return model
@@ -21,12 +20,9 @@ def train_iteration(X, y, model, loss_fn, optimizer):
     optimizer.step()
     return loss
 
-def fit_regression_model(X, y, learning_rate=0.01, num_epochs=1000, print_interval=100):
+def fit_regression_model(X, y, learning_rate=0.001, num_epochs=1000, print_interval=100):
     """
     Train the model for the given number of epochs.
-    Hint: use the train_iteration function.
-    Hint 2: while working you can use the print function to print the loss every 1000 epochs.
-    Hint 3: you can use the previous_loss variable to stop the training when the loss is not changing much.
     """
     input_features = X.shape[1]
     output_features = y.shape[1]
@@ -39,13 +35,20 @@ def fit_regression_model(X, y, learning_rate=0.01, num_epochs=1000, print_interv
 
     for epoch in range(1, num_epochs + 1):
         loss = train_iteration(X, y, model, loss_fn, optimizer)
-        if abs(previous_loss - loss.item()) < 1e-5:  # Stop condition based on loss change
+        current_loss = loss.item()
+
+        if torch.isnan(loss):
+            print(f"Epoch {epoch}, Loss is NaN. Stopping training.")
+            break
+        
+        if abs(previous_loss - current_loss) < 1e-5:  # Stop condition based on loss change
             print(f"Stopping training at epoch {epoch} because loss is not changing much.")
             break
         if epoch % print_interval == 0:  # Print loss every `print_interval` epochs
-            print(f"Epoch {epoch}, Loss: {loss.item()}")
-        previous_loss = loss.item()
-    return model
+            print(f"Epoch {epoch}, Loss: {current_loss:.4f}")
+        previous_loss = current_loss
+    
+    return model, current_loss
 
 # Prepare data
 data = np.array([
@@ -73,10 +76,10 @@ data = np.array([
 
 # Separate features (X) and target (y)
 X = torch.tensor(data[:, :2], dtype=torch.float32)  # First two columns
-y = torch.tensor(data[:, 2:], dtype=torch.float32)  # Last column
+y = torch.tensor(data[:, 2:], dtype=torch.float32)  # Last column, ensure it's 2D
 
 # Train the model
-model = fit_regression_model(X, y)
+model, final_loss = fit_regression_model(X, y)
 
 # Predict unknown values
 def predict_vault_value(model, gold, silver):
@@ -95,4 +98,4 @@ unknown_vaults = [
 for vault in unknown_vaults:
     gold, silver = vault
     value = predict_vault_value(model, gold, silver)
-    print(f"Predicted value for vault with {gold} gold and {silver} silver coins: £{value:.2f}")
+    print(f"Predicted value for vault with {gold} gold and {silver} silver: {value:.2f}")

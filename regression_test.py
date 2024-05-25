@@ -63,13 +63,13 @@ def test_fit_regression_model_1d():
     model, loss = fit_regression_model(X, y)
     print(loss)
 
-    assert loss.item() < 4321,  " loss too big"
+    assert loss < 4321, "loss too big"
 
 
 def test_fit_regression_model_2d():
     X, y = get_train_data(dim=2)
     model, loss = fit_regression_model(X, y)
-    assert loss.item() < 400
+    assert loss < 400
 
 
 def test_fit_and_predict_regression_model_1d():
@@ -79,8 +79,8 @@ def test_fit_and_predict_regression_model_1d():
     y_pred = model(X_test)
     assert ((y_pred - torch.tensor([[1252.3008],
                                     [939.9971],
-                                    [627.6935]])).abs() < 2).all(), " y_pred is not correct"
-    assert y_pred.shape == (3, 1), " y_pred shape is not correct"
+                                    [627.6935]])).abs() < 2).all(), "y_pred is not correct"
+    assert y_pred.shape == (3, 1), "y_pred shape is not correct"
 
 
 def test_fit_and_predict_regression_model_2d():
@@ -91,8 +91,8 @@ def test_fit_and_predict_regression_model_2d():
 
     assert ((y_pred - torch.tensor([[1191.9037],
                                     [943.9369],
-                                    [695.9700]])).abs() < 2).all(), " y_pred is not correct"
-    assert y_pred.shape == (3, 1), " y_pred shape is not correct"
+                                    [695.9700]])).abs() < 2).all(), "y_pred is not correct"
+    assert y_pred.shape == (3, 1), "y_pred shape is not correct"
 
 
 if __name__ == "__main__":
